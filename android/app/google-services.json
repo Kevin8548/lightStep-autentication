@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "6454599497",
+    "project_id": "lightstep-50379",
+    "storage_bucket": "lightstep-50379.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:6454599497:android:e03f7aaf2031138e150498",
+        "android_client_info": {
+          "package_name": "com.example.lightstepdb"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD_ph-TtnSanMknt0uvfjjt57q3jH3SV04"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
