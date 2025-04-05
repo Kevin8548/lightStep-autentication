@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:light_step_app/screens/consumo.dart';
-import 'package:light_step_app/screens/iniciar_sesion.dart';
 import 'package:light_step_app/screens/perfil.dart';
 import 'package:light_step_app/screens/personalizacion.dart';
 import 'package:light_step_app/services/lightstep_service.dart';

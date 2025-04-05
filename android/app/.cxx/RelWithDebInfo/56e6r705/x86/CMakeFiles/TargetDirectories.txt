@@ -1,0 +1,2 @@
+C:/lightstepdb/android/app/.cxx/RelWithDebInfo/56e6r705/x86/CMakeFiles/edit_cache.dir
+C:/lightstepdb/android/app/.cxx/RelWithDebInfo/56e6r705/x86/CMakeFiles/rebuild_cache.dir

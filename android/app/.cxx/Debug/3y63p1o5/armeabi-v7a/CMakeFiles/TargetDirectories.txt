@@ -1,0 +1,2 @@
+C:/lightstepdb/android/app/.cxx/Debug/3y63p1o5/armeabi-v7a/CMakeFiles/edit_cache.dir
+C:/lightstepdb/android/app/.cxx/Debug/3y63p1o5/armeabi-v7a/CMakeFiles/rebuild_cache.dir

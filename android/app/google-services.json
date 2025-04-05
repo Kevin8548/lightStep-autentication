@@ -1,18 +1,24 @@
 {
   "project_info": {
     "project_number": "6454599497",
+    "firebase_url": "https://lightstep-50379-default-rtdb.firebaseio.com",
     "project_id": "lightstep-50379",
     "storage_bucket": "lightstep-50379.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:6454599497:android:e03f7aaf2031138e150498",
+        "mobilesdk_app_id": "1:6454599497:android:6a1a5d233fedbc07150498",
         "android_client_info": {
-          "package_name": "com.example.lightstepdb"
+          "package_name": "com.example.light_step_app"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "6454599497-dr4t8akqh8r6tuejnmibms2eh8b358a5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyD_ph-TtnSanMknt0uvfjjt57q3jH3SV04"
@@ -20,7 +26,63 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "6454599497-dr4t8akqh8r6tuejnmibms2eh8b358a5.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "6454599497-gro0l0l94nsj842ebo2fh213u2ru3nqh.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.lightstepdb"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:6454599497:android:e03f7aaf2031138e150498",
+        "android_client_info": {
+          "package_name": "com.example.lightstepdb"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "6454599497-osuf5v7sb78qe6ao08tbcljcpol530r7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.lightstepdb",
+            "certificate_hash": "85a2600a3762399311e59109f9947989a157a858"
+          }
+        },
+        {
+          "client_id": "6454599497-dr4t8akqh8r6tuejnmibms2eh8b358a5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD_ph-TtnSanMknt0uvfjjt57q3jH3SV04"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "6454599497-dr4t8akqh8r6tuejnmibms2eh8b358a5.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "6454599497-gro0l0l94nsj842ebo2fh213u2ru3nqh.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.lightstepdb"
+              }
+            }
+          ]
         }
       }
     }
