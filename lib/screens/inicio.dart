@@ -56,15 +56,12 @@ class _InicioState extends State<Inicio> {
                       SizedBox(height: 10),
                       Text(
                         'Con LightStep puedes:',
-                        style: TextStyle(
-                          color: Colors.white70,
-                          fontSize: 18,
-                        ),
+                        style: TextStyle(color: Colors.white70, fontSize: 18),
                       ),
                     ],
                   ),
                 ),
-                SizedBox(width: 25),
+                SizedBox(width: 20),
                 Image.asset(
                   'assets/img/desc.gif',
                   height: 150,
@@ -76,23 +73,38 @@ class _InicioState extends State<Inicio> {
             Expanded(
               child: GridView.count(
                 crossAxisCount: 2,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+                childAspectRatio: 1.3,
                 children: [
-                  _buildCard('Ahorrar', 'Reducir el consumo de energía',
-                      [Colors.red, Colors.orange], Icons.bolt),
-                  _buildCard('Personalizar', 'Elegir el color que quieras',
-                      [Colors.green, Colors.teal], Icons.color_lens),
                   _buildCard(
-                      'Elegir efectos',
-                      'Cambiar efecto ciclo arcoíris o estático.',
-                      [Colors.blue, Colors.purple],
-                      Icons.auto_awesome),
+                      'Ahorrar',
+                      'Reducir el consumo de energía',
+                      [
+                        Colors.red,
+                        Colors.orange,
+                      ],
+                      Icons.bolt),
                   _buildCard(
-                      'Reducir riesgos',
-                      'Evitar accidentes en escaleras y pasillos.',
-                      [Colors.yellow, Colors.deepOrange],
-                      Icons.warning),
+                      'Personalizar',
+                      'Elegir el color que quieras',
+                      [
+                        Colors.green,
+                        Colors.teal,
+                      ],
+                      Icons.color_lens),
+                  _buildCard(
+                    'Elegir efectos',
+                    'Cambiar efecto ciclo arcoíris o estático.',
+                    [Colors.blue, Colors.purple],
+                    Icons.auto_awesome,
+                  ),
+                  _buildCard(
+                    'Reducir riesgos',
+                    'Evitar accidentes en escaleras y pasillos.',
+                    [Colors.yellow, Colors.deepOrange],
+                    Icons.warning,
+                  ),
                 ],
               ),
             ),
@@ -110,9 +122,13 @@ class _InicioState extends State<Inicio> {
           items: const [
             BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Inicio'),
             BottomNavigationBarItem(
-                icon: Icon(Icons.palette), label: 'Personalización'),
+              icon: Icon(Icons.palette),
+              label: 'Personalización',
+            ),
             BottomNavigationBarItem(
-                icon: Icon(Icons.bar_chart), label: 'Consumo'),
+              icon: Icon(Icons.bar_chart),
+              label: 'Consumo',
+            ),
             BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Perfil'),
           ],
         ),
@@ -121,10 +137,14 @@ class _InicioState extends State<Inicio> {
   }
 
   Widget _buildCard(
-      String title, String subtitle, List<Color> colors, IconData icon) {
+    String title,
+    String subtitle,
+    List<Color> colors,
+    IconData icon,
+  ) {
     return Container(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(17),
+        borderRadius: BorderRadius.circular(14),
         gradient: LinearGradient(
           colors: colors,
           begin: Alignment.topLeft,
@@ -133,38 +153,31 @@ class _InicioState extends State<Inicio> {
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.2),
-            blurRadius: 6,
-            spreadRadius: 2,
-            offset: Offset(2, 4),
+            blurRadius: 4,
+            spreadRadius: 1,
+            offset: Offset(2, 3),
           ),
         ],
       ),
-      padding: EdgeInsets.all(16),
+      padding: EdgeInsets.all(12),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            icon,
-            color: Colors.white,
-            size: 40,
-          ),
-          SizedBox(height: 10),
+          Icon(icon, color: Colors.white, size: 32),
+          SizedBox(height: 8),
           Text(
             title,
             style: TextStyle(
               color: Colors.white,
-              fontSize: 20,
+              fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
           ),
-          SizedBox(height: 8),
+          SizedBox(height: 6),
           Text(
             subtitle,
             textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Colors.white70,
-              fontSize: 14,
-            ),
+            style: TextStyle(color: Colors.white70, fontSize: 12),
           ),
         ],
       ),

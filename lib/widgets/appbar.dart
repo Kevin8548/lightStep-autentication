@@ -1,18 +1,59 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:lucide_icons/lucide_icons.dart'; // Usa íconos modernos
+import 'package:firebase_database/firebase_database.dart'; // Firebase Database
 
-class AppbarStyle extends StatelessWidget implements PreferredSizeWidget {
+class AppbarStyle extends StatefulWidget implements PreferredSizeWidget {
   final String title;
-  final VoidCallback? onPowerPressed; // Agregar función para el botón
   final PreferredSizeWidget? bottom;
 
   const AppbarStyle({
     super.key,
     required this.title,
-    this.onPowerPressed,
     this.bottom, // Agregar parámetro para la barra de pestañas
   });
+
+  @override
+  _AppbarStyleState createState() => _AppbarStyleState();
+
+  @override
+  Size get preferredSize => const Size.fromHeight(70);
+}
+
+class _AppbarStyleState extends State<AppbarStyle> {
+  final DatabaseReference dbRef = FirebaseDatabase.instance.ref().child(
+        "ledEstado",
+      );
+  bool ledState = false; // Estado de las luces, por defecto apagadas
+
+  void toggleLed() async {
+    try {
+      // Si las luces están apagadas, encenderlas; si están encendidas, apagarlas.
+      String newState = ledState ? "off" : "on"; // Alternar estado
+      await dbRef.set({
+        "estado": newState,
+        "fecha": DateTime.now().toIso8601String(),
+      });
+
+      setState(() {
+        ledState = !ledState; // Cambiar el estado de la luz
+      });
+
+      String message = ledState
+          ? "✅ Luces encendidas correctamente"
+          : "✅ Luces apagadas correctamente";
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message), duration: Duration(seconds: 1)),
+      );
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("❌ Error al cambiar el estado de las luces: $error"),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,9 +62,9 @@ class AppbarStyle extends StatelessWidget implements PreferredSizeWidget {
         'LightStep',
         style: TextStyle(
           color: Colors.white,
-          fontFamily: 'Roboto',
+          fontFamily: 'PoetsenOne',
+          fontWeight: FontWeight.w400,
           fontSize: 26,
-          // fontWeight: FontWeight.bold,
         ),
       ),
       toolbarHeight: 80, // Ajusta la altura del AppBar
@@ -49,13 +90,6 @@ class AppbarStyle extends StatelessWidget implements PreferredSizeWidget {
                   Color.fromARGB(255, 246, 88, 211),
                   Color.fromARGB(0, 255, 153, 0),
                   Color.fromARGB(0, 255, 153, 0),
-                  Color.fromARGB(0, 255, 153, 0),
-                  Color.fromARGB(0, 255, 153, 0),
-                  Color.fromARGB(0, 255, 153, 0),
-                  Color.fromARGB(0, 255, 153, 0),
-                  Color.fromARGB(250, 117, 48, 238),
-                  Color.fromARGB(0, 255, 153, 0),
-                  Color.fromARGB(0, 255, 153, 0),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -66,7 +100,11 @@ class AppbarStyle extends StatelessWidget implements PreferredSizeWidget {
               decoration: BoxDecoration(
                 shape: BoxShape.circle, // Borde interno circular
                 color: const Color.fromARGB(
-                    255, 44, 1, 51), // Color de fondo interno
+                  255,
+                  44,
+                  1,
+                  51,
+                ), // Color de fondo interno
               ),
               padding: const EdgeInsets.all(5), // Espacio para el borde externo
               child: Container(
@@ -81,15 +119,13 @@ class AppbarStyle extends StatelessWidget implements PreferredSizeWidget {
                     end: Alignment.bottomRight,
                   ),
                 ),
-                padding:
-                    const EdgeInsets.all(3), // Espacio para el borde interno
+                padding: const EdgeInsets.all(
+                  3,
+                ), // Espacio para el borde interno
                 child: Container(
                   height: 40,
                   decoration: const BoxDecoration(
                     shape: BoxShape.circle,
-                    //   color: Color.fromARGB(
-                    //       150, 39, 38, 39), // Color de fondo interno
-                    // ),
                     gradient: LinearGradient(
                       colors: [
                         Color.fromARGB(255, 246, 88, 211),
@@ -99,18 +135,35 @@ class AppbarStyle extends StatelessWidget implements PreferredSizeWidget {
                       end: Alignment.bottomRight,
                     ),
                   ),
-                  padding:
-                      const EdgeInsets.all(0), // Espacio para el borde interno
+                  padding: const EdgeInsets.all(
+                    0,
+                  ), // Espacio para el borde interno
                   child: Container(
                     height: 40,
-                    decoration: const BoxDecoration(
+                    decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: Color.fromARGB(
-                          255, 55, 2, 63), // Color de fondo interno
+                      color: ledState
+                          ? const Color.fromARGB(
+                              255,
+                              1,
+                              55,
+                              63,
+                            ) // Color fijo (encendido)
+                          : const Color.fromARGB(
+                              255,
+                              44,
+                              1,
+                              51,
+                            ), // Color apagado
                     ),
                     child: IconButton(
-                      icon: const Icon(LucideIcons.power, color: Colors.white),
-                      onPressed: onPowerPressed ?? () {},
+                      icon: Icon(
+                        ledState
+                            ? LucideIcons.power // Ícono para encendido
+                            : LucideIcons.powerOff, // Ícono para apagado
+                        color: Colors.white,
+                      ),
+                      onPressed: toggleLed, // Llamar al método para alternar
                     ),
                   ),
                 ),
@@ -120,13 +173,11 @@ class AppbarStyle extends StatelessWidget implements PreferredSizeWidget {
         ),
       ],
       backgroundColor: const Color.fromARGB(0, 0, 0, 0),
-      bottom: bottom, // Se asigna el TabBar aquí
+      bottom: widget.bottom, // Se asigna el TabBar aquí
     );
   }
-
-  @override
-  Size get preferredSize => const Size.fromHeight(70);
 }
+
 
 // class TabBarStyle extends StatelessWidget implements PreferredSizeWidget {
 //   final List<Tab> tabs;

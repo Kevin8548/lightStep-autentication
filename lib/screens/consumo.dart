@@ -1,31 +1,52 @@
 import 'package:flutter/material.dart';
-import 'package:light_step_app/services/lightstep_service.dart';
 import 'package:light_step_app/widgets/appbar.dart';
 import 'package:light_step_app/widgets/scaffold_con_degradado.dart';
 import 'package:pie_chart/pie_chart.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 class ConsumoScreen extends StatefulWidget {
   const ConsumoScreen({super.key});
 
   @override
-  State<ConsumoScreen> createState() => _ConsumoScreenState();
+  _ConsumoScreenState createState() => _ConsumoScreenState();
 }
 
 class _ConsumoScreenState extends State<ConsumoScreen> {
-  final LightstepService _service = LightstepService();
-  late Stream<Map<String, double>> _streamHoras;
-
-  List<Color> colorList = [
-    const Color.fromARGB(255, 244, 6, 165),
-    const Color.fromARGB(255, 193, 206, 8),
-    const Color.fromARGB(255, 90, 120, 228),
-    const Color.fromARGB(255, 240, 123, 80),
+  final List<Color> colorList = const [
+    Color.fromARGB(255, 244, 6, 165),
+    Color.fromARGB(255, 193, 206, 8),
+    Color.fromARGB(255, 90, 120, 228),
+    Color.fromARGB(255, 240, 123, 80),
   ];
+
+  Map<String, double> dataMap = {};
 
   @override
   void initState() {
     super.initState();
-    _streamHoras = _service.getConsumoAgrupadoPorDia();
+    _obtenerDatosDesdeFirebase();
+  }
+
+  void _obtenerDatosDesdeFirebase() {
+    DatabaseReference ref = FirebaseDatabase.instance.ref('/consumo');
+    ref.onValue.listen((event) {
+      final data = event.snapshot.value as Map?;
+      if (data != null) {
+        Map<String, double> nuevoDataMap = {};
+
+        data.forEach((key, value) {
+          if (value is num) {
+            nuevoDataMap[key] = value.toDouble();
+          }
+        });
+
+        print('Datos recibidos desde Firebase: $nuevoDataMap');
+
+        setState(() {
+          dataMap = nuevoDataMap;
+        });
+      }
+    });
   }
 
   @override
@@ -33,59 +54,54 @@ class _ConsumoScreenState extends State<ConsumoScreen> {
     return ScaffoldConDegradado(
       appBar: AppbarStyle(title: 'Consumo por Día'),
       body: SingleChildScrollView(
-        child: StreamBuilder<Map<String, double>>(
-          stream: _streamHoras,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            if (snapshot.hasError) {
-              return const Center(child: Text("Error al cargar los datos"));
-            }
-            if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return const Center(child: Text("No hay datos disponibles"));
-            }
-
-            final dataMap = snapshot.data!;
-            print(
-                "Datos agrupados que llegan al gráfico: $dataMap"); // Debug para confirmar datos
-
-            return Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 40),
-                  _buildSectionTitle("Consumo por Día"),
-                  const SizedBox(height: 30),
-                  _buildContainerWithTransparentBackground(
-                    child: Column(
-                      children: [
-                        PieChart(
-                          dataMap: dataMap, // Ahora se usan los datos por día
-                          colorList: colorList,
-                          chartValuesOptions: const ChartValuesOptions(
-                            showChartValuesInPercentage: false,
-                            decimalPlaces: 0,
-                            chartValueStyle: TextStyle(
-                              color: Color.fromARGB(255, 0, 0, 0),
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          legendOptions: const LegendOptions(showLegends: true),
-                          chartType: ChartType.ring,
-                          ringStrokeWidth: 32,
-                          chartRadius: MediaQuery.of(context).size.width / 2,
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 40),
+              _buildSectionTitle("Consumo por Día"),
+              const SizedBox(height: 30),
+              _buildContainerWithTransparentBackground(
+                child: Column(
+                  children: [
+                    if (dataMap.isEmpty)
+                      const Center(
+                        child: Text(
+                          "Cargando datos...",
+                          style: TextStyle(color: Colors.white),
                         ),
-                        const SizedBox(height: 30),
-                        _buildLegend(dataMap),
-                      ],
-                    ),
-                  ),
-                ],
+                      )
+                    else
+                      PieChart(
+                        dataMap: dataMap,
+                        colorList: colorList,
+                        chartValuesOptions: const ChartValuesOptions(
+                          showChartValuesInPercentage: false,
+                          decimalPlaces: 0,
+                          chartValueStyle: TextStyle(
+                            color: Color.fromARGB(255, 13, 13, 13),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        legendOptions: const LegendOptions(
+                          showLegends: true,
+                          legendTextStyle: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        chartType: ChartType.ring,
+                        ringStrokeWidth: 32,
+                        chartRadius: MediaQuery.of(context).size.width / 2,
+                      ),
+                    const SizedBox(height: 30),
+                    _buildLegend(dataMap),
+                  ],
+                ),
               ),
-            );
-          },
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: Material(
@@ -97,17 +113,13 @@ class _ConsumoScreenState extends State<ConsumoScreen> {
             children: [
               IconButton(
                 icon: const Icon(Icons.arrow_back),
-                onPressed: () {
-                  Navigator.pop(context);
-                },
+                onPressed: () {},
                 color: Colors.white,
               ),
               IconButton(
                 icon: const Icon(Icons.settings),
-                onPressed: () {
-                  Navigator.pushNamed(context, '/seccion1');
-                },
-                color: const Color.fromARGB(255, 0, 0, 0),
+                onPressed: () {},
+                color: Colors.white,
               ),
             ],
           ),
@@ -119,7 +131,7 @@ class _ConsumoScreenState extends State<ConsumoScreen> {
   Widget _buildSectionTitle(String title) {
     return Container(
       decoration: BoxDecoration(
-        gradient: LinearGradient(
+        gradient: const LinearGradient(
           colors: [Colors.pinkAccent, Colors.purple],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -168,7 +180,10 @@ class _ConsumoScreenState extends State<ConsumoScreen> {
           final colorIndex =
               dataMap.keys.toList().indexOf(entry.key) % colorList.length;
           return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
+            padding: const EdgeInsets.symmetric(
+              vertical: 6,
+              horizontal: 16,
+            ),
             child: Row(
               children: [
                 Container(

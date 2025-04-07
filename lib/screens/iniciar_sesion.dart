@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:light_step_app/screens/encendido.dart';
 import 'package:light_step_app/widgets/scaffold_con_degradado.dart';
-import 'package:light_step_app/widgets/tabbar.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -18,6 +19,9 @@ class _IniciarSesionState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return ScaffoldConDegradado(
+      bottomNavigationBar: Material(
+        child: Container(), // Add a placeholder or your desired widget
+      ),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 30),
@@ -44,50 +48,24 @@ class _IniciarSesionState extends State<LoginScreen> {
               _animatedTitle(),
               const SizedBox(height: 40),
               _buildTextField(
-                  Icons.person, "Usuario", false, _usuarioController),
+                Icons.person,
+                "Usuario",
+                false,
+                _usuarioController,
+              ),
               const SizedBox(height: 20),
               _buildTextField(
-                  Icons.lock, "Contraseña", true, _passwordController),
-              const SizedBox(height: 20),
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    gradient: const LinearGradient(
-                      begin: Alignment.centerLeft,
-                      end: Alignment.centerRight,
-                      colors: [Color(0xFFFF0080), Color(0xFF8000FF)],
-                    ),
-                  ),
-                  child: ElevatedButton(
-                    onPressed: _validarYContinuar,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.transparent,
-                      shadowColor: Colors.transparent,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    child: const Text("Iniciar Sesión",
-                        style: TextStyle(color: Colors.white)),
-                  ),
-                ),
+                Icons.lock,
+                "Contraseña",
+                true,
+                _passwordController,
               ),
+              const SizedBox(height: 20),
+              _buildGradientButton("Iniciar Sesión", _validarYContinuar),
+              const SizedBox(height: 20),
+              _buildGoogleButton(), // <-- Botón de Google agregado aquí
             ],
           ),
-        ),
-      ),
-      bottomNavigationBar: Material(
-        color: Colors.purple, // Fondo para que se vea mejor
-        child: const TabBar(
-          tabs: [
-            Tab(icon: Icon(Icons.home), text: "Inicio"),
-            Tab(icon: Icon(Icons.settings), text: "Personalización"),
-            Tab(icon: Icon(Icons.battery_charging_full), text: "Consumo"),
-            Tab(icon: Icon(Icons.person), text: "Perfil"),
-          ],
         ),
       ),
     );
@@ -96,6 +74,7 @@ class _IniciarSesionState extends State<LoginScreen> {
   Widget _animatedTitle() {
     return DefaultTextStyle(
       style: const TextStyle(
+        fontFamily: 'PoetsenOne',
         fontSize: 30.0,
         fontWeight: FontWeight.bold,
         color: Colors.white,
@@ -104,19 +83,22 @@ class _IniciarSesionState extends State<LoginScreen> {
         animatedTexts: [
           TyperAnimatedText(
             "Iniciar Sesión",
-            speed: const Duration(milliseconds: 100), // Más rápido y fluido
+            speed: const Duration(milliseconds: 100),
           ),
         ],
         isRepeatingAnimation: true,
         repeatForever: true,
-        pause:
-            const Duration(seconds: 1), // Añade una pequeña pausa al reiniciar
+        pause: const Duration(seconds: 1),
       ),
     );
   }
 
-  Widget _buildTextField(IconData icon, String hintText, bool obscureText,
-      TextEditingController controller) {
+  Widget _buildTextField(
+    IconData icon,
+    String hintText,
+    bool obscureText,
+    TextEditingController controller,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: Container(
@@ -157,6 +139,51 @@ class _IniciarSesionState extends State<LoginScreen> {
     );
   }
 
+  Widget _buildGradientButton(String text, VoidCallback onPressed) {
+    return SizedBox(
+      width: double.infinity,
+      height: 50,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          gradient: const LinearGradient(
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+            colors: [Color(0xFFFF0080), Color(0xFF8000FF)],
+          ),
+        ),
+        child: ElevatedButton(
+          onPressed: onPressed,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.transparent,
+            shadowColor: Colors.transparent,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+          child: Text(text, style: const TextStyle(color: Colors.white)),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGoogleButton() {
+    return SizedBox(
+      width: double.infinity,
+      height: 50,
+      child: ElevatedButton.icon(
+        onPressed: _iniciarSesionConGoogle,
+        icon: Image.asset('assets/google_logo.png', height: 24),
+        label: const Text("Iniciar sesión con Google"),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.black,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        ),
+      ),
+    );
+  }
+
   void _validarYContinuar() {
     String usuario = _usuarioController.text.trim();
     String password = _passwordController.text.trim();
@@ -166,7 +193,7 @@ class _IniciarSesionState extends State<LoginScreen> {
     } else {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => TabBarScreen()),
+        MaterialPageRoute(builder: (context) => Encendido()),
       );
     }
   }
@@ -179,5 +206,29 @@ class _IniciarSesionState extends State<LoginScreen> {
         duration: const Duration(seconds: 2),
       ),
     );
+  }
+
+  Future<void> _iniciarSesionConGoogle() async {
+    try {
+      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+      if (googleUser == null) return;
+
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      await FirebaseAuth.instance.signInWithCredential(credential);
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => Encendido()),
+      );
+    } catch (e) {
+      _mostrarMensaje("Error al iniciar sesión con Google: $e");
+    }
   }
 }

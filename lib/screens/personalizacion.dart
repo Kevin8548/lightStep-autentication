@@ -13,28 +13,45 @@ class Personalizacion extends StatefulWidget {
 
 class _PersonalizacionState extends State<Personalizacion> {
   Color selectedColor = Colors.red;
-  final DatabaseReference dbRef = FirebaseDatabase.instance.ref("config");
+  final DatabaseReference dbRef = FirebaseDatabase.instance.ref();
   double opacity = 1.0;
   int selectedEffect = 0;
 
-  String colorToRgbString(Color color) {
-    return "${color.red},${color.green},${color.blue}";
+  String colorToHex(Color color) {
+    return "#${color.red.toRadixString(16).padLeft(2, '0')}"
+            "${color.green.toRadixString(16).padLeft(2, '0')}"
+            "${color.blue.toRadixString(16).padLeft(2, '0')}"
+        .toUpperCase();
   }
 
   void guardarConfiguracion() {
     Map<String, dynamic> data = {
-      'color': colorToRgbString(selectedColor),
+      'color': colorToHex(selectedColor),
       'efecto': selectedEffect,
+      'efecto_nombre': _getEffectName(selectedEffect),
       'estado': 'activo',
       'fecha': DateTime.now().toIso8601String(),
       'opacidad': (opacity * 100).toInt(),
     };
 
-    dbRef.push().set(data).then((_) {
-      print('✅ Configuración guardada en Realtime Database');
+    print("Enviando a Firebase: $data");
+
+    dbRef.update(data).then((_) {
+      print('✅ Configuración guardada en Firebase');
     }).catchError((error) {
-      print('❌ Error al guardar en Firebase Realtime: $error');
+      print('❌ Error al guardar en Firebase: $error');
     });
+  }
+
+  String _getEffectName(int effect) {
+    switch (effect) {
+      case 1:
+        return "Ciclo";
+      case 2:
+        return "Arcoiris";
+      default:
+        return "Estático";
+    }
   }
 
   @override
@@ -44,154 +61,168 @@ class _PersonalizacionState extends State<Personalizacion> {
       child: ScaffoldConDegradado(
         appBar: AppbarStyle(title: 'Personalización'),
         body: SingleChildScrollView(
-          padding: EdgeInsets.all(16),
+          padding: const EdgeInsets.all(16),
           child: Column(
-            crossAxisAlignment:
-                CrossAxisAlignment.start, // Textos alineados a la izquierda
             children: [
               _buildSectionTitle('Selecciona un color'),
-              SizedBox(height: 20),
-              Text(
-                'Haz clic para cambiar el color de la luz',
-                textAlign:
-                    TextAlign.left, // Alineación del texto a la izquierda
-                style: TextStyle(
-                  fontSize: 15,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  shadows: [
-                    Shadow(
-                      offset: Offset(1, 1),
-                      blurRadius: 3,
-                      color: Colors.black54,
-                    ),
-                  ],
+              const SizedBox(height: 20),
+
+              // Contenedor para Color
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(15),
                 ),
-              ),
-              SizedBox(height: 20),
-              Center(
-                // Mantener el círculo de cambio de color centrado
-                child: GestureDetector(
-                  onTap: () async {
-                    await showDialog(
-                      context: context,
-                      builder: (context) {
-                        return AlertDialog(
-                          title: Text('Selecciona un color'),
-                          content: SingleChildScrollView(
-                            child: ColorPicker(
-                              pickerColor: selectedColor,
-                              onColorChanged: (color) {
-                                setState(() => selectedColor = color);
-                              },
-                            ),
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () {
-                                guardarConfiguracion();
-                                Navigator.pop(context);
-                              },
-                              child: Text('Guardar'),
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  },
-                  child: Container(
-                    width: 130,
-                    height: 130,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [selectedColor.withOpacity(0.6), selectedColor],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: BorderRadius.circular(100),
-                      border: Border.all(color: selectedColor, width: 5),
-                    ),
-                    child: Center(
+                child: Column(
+                  children: [
+                    const Align(
+                      alignment: Alignment.centerLeft,
                       child: Text(
-                        'RGB\n${selectedColor.red}, ${selectedColor.green}, ${selectedColor.blue}',
-                        textAlign: TextAlign.center,
+                        'Haz clic para cambiar el color de la luz',
                         style: TextStyle(
-                          color: selectedColor.computeLuminance() > 0.5
-                              ? Colors.black
-                              : Colors.white,
-                          fontSize: 12,
+                          fontSize: 15,
+                          color: Colors.white,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
-                  ),
+                    const SizedBox(height: 10),
+                    GestureDetector(
+                      onTap: () async {
+                        await showDialog(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                              title: const Text('Selecciona un color'),
+                              content: SingleChildScrollView(
+                                child: ColorPicker(
+                                  pickerColor: selectedColor,
+                                  onColorChanged: (color) {
+                                    setState(() => selectedColor = color);
+                                  },
+                                ),
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    guardarConfiguracion();
+                                    Navigator.pop(context);
+                                  },
+                                  child: const Text('Guardar'),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      },
+                      child: Container(
+                        width: 130,
+                        height: 130,
+                        decoration: BoxDecoration(
+                          color: selectedColor.withOpacity(0.3),
+                          borderRadius: BorderRadius.circular(100),
+                          border: Border.all(color: selectedColor, width: 5),
+                        ),
+                        child: Center(
+                          child: Text(
+                            'HEX\n${colorToHex(selectedColor)}',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: selectedColor.computeLuminance() > 0.5
+                                  ? Colors.black
+                                  : Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              SizedBox(height: 20),
+
+              const SizedBox(height: 20),
               _buildSectionTitle('Opacidad'),
-              SizedBox(height: 20),
-              Text(
-                'Ajusta el brillo a tu preferencia',
-                textAlign:
-                    TextAlign.left, // Alineación del texto a la izquierda
-                style: TextStyle(
-                  fontSize: 15,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  shadows: [
-                    Shadow(
-                      offset: Offset(1, 1),
-                      blurRadius: 3,
-                      color: Colors.black54,
-                    ),
-                  ],
-                ),
-              ),
+              const SizedBox(height: 20),
+
+              // Contenedor para Opacidad
               Container(
-                margin: EdgeInsets.symmetric(vertical: 20),
-                padding: EdgeInsets.all(1),
+                padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color:
-                      const Color.fromARGB(95, 134, 133, 133).withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black26,
-                      blurRadius: 6,
-                      offset: Offset(0, 3),
+                  color: Colors.black.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Ajusta el brillo a tu preferencia',
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: Colors.white.withOpacity(0.8),
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Slider(
+                      value: opacity,
+                      min: 0,
+                      max: 1,
+                      divisions: 10,
+                      label: '${(opacity * 100).toInt()}%',
+                      onChanged: (val) => setState(() => opacity = val),
+                      onChangeEnd: (val) => guardarConfiguracion(),
                     ),
                   ],
                 ),
-                child: Slider(
-                  value: opacity,
-                  min: 0,
-                  max: 1,
-                  divisions: 10,
-                  label: '${(opacity * 100).toInt()}%',
-                  activeColor: const Color.fromARGB(255, 237, 14, 193),
-                  inactiveColor:
-                      const Color.fromARGB(255, 255, 255, 255).withOpacity(0.5),
-                  onChanged: (val) => setState(() => opacity = val),
-                  onChangeEnd: (val) => guardarConfiguracion(),
+              ),
+
+              const SizedBox(height: 20),
+              _buildSectionTitle('Efectos'),
+              const SizedBox(height: 20),
+
+              // Contenedor para Efectos
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Selecciona un efecto para las luces',
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: Colors.white.withOpacity(0.8),
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        _efectoBoton(0, 'Estático', Colors.purple, Colors.pink),
+                        _efectoBoton(1, 'Ciclo', Colors.purple, Colors.blue),
+                        _efectoBoton(
+                          2,
+                          'Arcoíris',
+                          Colors.purple,
+                          Colors.orange,
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
-              SizedBox(height: 20),
-              // _buildSectionTitle('Efectos'),
-              // SizedBox(height: 20),
-              // Row(
-              //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              //   children: [
-              //     _efectoBoton(0, 'Estático', Colors.purple, Colors.pink),
-              //     _efectoBoton(1, 'Ciclo', Colors.purple, Colors.blue),
-              //     _efectoBoton(2, 'Arcoíris', Colors.purple, Colors.orange),
-              //   ],
-              // ),
             ],
           ),
         ),
-        bottomNavigationBar: Material(
+        bottomNavigationBar: const Material(
           color: Colors.purple,
-          child: const TabBar(
+          child: TabBar(
             tabs: [
               Tab(icon: Icon(Icons.home), text: "Inicio"),
               Tab(icon: Icon(Icons.settings), text: "Personalización"),
@@ -215,11 +246,11 @@ class _PersonalizacionState extends State<Personalizacion> {
       onTap: () {
         setState(() {
           selectedEffect = index;
-          guardarConfiguracion();
         });
+        guardarConfiguracion();
       },
       child: Container(
-        padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
         decoration: BoxDecoration(
           gradient: isSelected
               ? LinearGradient(colors: [startColor, endColor])
@@ -229,9 +260,8 @@ class _PersonalizacionState extends State<Personalizacion> {
         ),
         child: Text(
           label,
-          style: TextStyle(
+          style: const TextStyle(
             color: Colors.white,
-            fontSize: 15,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -243,9 +273,9 @@ class _PersonalizacionState extends State<Personalizacion> {
     return Row(
       children: [
         Container(
-          padding: EdgeInsets.all(3),
+          padding: const EdgeInsets.all(3),
           decoration: BoxDecoration(
-            gradient: LinearGradient(
+            gradient: const LinearGradient(
               colors: [Colors.pinkAccent, Colors.purple],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
@@ -262,7 +292,7 @@ class _PersonalizacionState extends State<Personalizacion> {
               title,
               style: const TextStyle(
                 color: Colors.white,
-                fontSize: 17,
+                fontSize: 16,
                 fontWeight: FontWeight.bold,
               ),
             ),

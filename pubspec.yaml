@@ -14,6 +14,7 @@ dependencies:
   lucide_icons: ^0.255.0
   flutter_colorpicker: ^1.1.0
   pie_chart: ^5.0.0
+  fl_chart: ^0.63.0
   firebase_core: ^3.12.1
   http: ^0.13.6
   cloud_firestore: ^5.6.5
@@ -35,3 +36,7 @@ flutter:
     - assets/img/descarga1.png
     - assets/img/desc.gif
     - assets/img/logo.svg
+  fonts:
+    - family: PoetsenOne
+      fonts:
+        - asset: assets/fonts/PoetsenOne-Regular.ttf

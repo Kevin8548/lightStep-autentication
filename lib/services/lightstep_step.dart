@@ -119,11 +119,6 @@ class _IniciarSesionState extends State<LoginScreen> {
                 child: DecoratedBox(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(8),
-                    gradient: const LinearGradient(
-                      begin: Alignment.centerLeft,
-                      end: Alignment.centerRight,
-                      colors: [Color(0xFFFF0080), Color(0xFF8000FF)],
-                    ),
                   ),
                   child: ElevatedButton(
                     onPressed: () async {
@@ -175,6 +170,7 @@ class _IniciarSesionState extends State<LoginScreen> {
       style: const TextStyle(
         fontSize: 30.0,
         fontWeight: FontWeight.bold,
+        fontFamily: 'PoetsenOne',
         color: Colors.white,
       ),
       child: AnimatedTextKit(

@@ -17,7 +17,7 @@ class _TabBarScreenState extends State<TabBarScreen> {
   final List<Widget> _screens = [
     Inicio(),
     const Personalizacion(),
-    ConsumoScreen(),
+    const ConsumoScreen(),
     const Perfil(),
   ];
 
@@ -61,6 +61,9 @@ class _TabBarScreenState extends State<TabBarScreen> {
                   _onTabSelected, // Cambiar el índice cuando se presiona el Tab
               backgroundColor: Colors.black,
               selectedItemColor: Colors.purpleAccent,
+              selectedLabelStyle: const TextStyle(
+                fontFamily: 'PoetsenOne',
+              ),
               unselectedItemColor: Color.fromARGB(255, 159, 156, 156),
               showUnselectedLabels: true,
               items: const [

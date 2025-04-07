@@ -52,8 +52,7 @@ class _PerfilState extends State<Perfil> {
         Uri.parse(formspreeURL),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({
-          "email":
-              "usuario@ejemplo.com", // Cambia esto si quieres un campo dinámico
+          "email": "usuario@ejemplo.com",
           "message": feedback,
         }),
       );
@@ -95,6 +94,7 @@ class _PerfilState extends State<Perfil> {
             const Text(
               "Kevin Arroyo",
               style: TextStyle(
+                fontFamily: 'PoetsenOne',
                 color: Colors.white,
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
